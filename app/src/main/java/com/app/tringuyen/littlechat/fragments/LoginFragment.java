@@ -1,16 +1,21 @@
 package com.app.tringuyen.littlechat.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.app.tringuyen.littlechat.MainActivity;
 import com.app.tringuyen.littlechat.R;
+import com.app.tringuyen.littlechat.library.GlobalConfig;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -74,7 +79,6 @@ public class LoginFragment extends Fragment{
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.fragment_login,container,false);
         loginButton = (LoginButton) v.findViewById(R.id.login_button);
-        //loginButton.setReadPermissions("user");
         // If using in a fragment
         loginButton.setFragment(this);
         loginButton.registerCallback(callbackManager, callback);
@@ -85,9 +89,21 @@ public class LoginFragment extends Fragment{
     {
         if(profile != null)
         {
+            String imageUrl = GlobalConfig.GRAPH_FACEBOOK + profile.getId() + GlobalConfig.FACEBOOK_IMAGE;
+            ((MainActivity) getActivity()).setProfile(profile.getName(),imageUrl);
+            ((MainActivity) getActivity()).enableDisableDrawer(DrawerLayout.LOCK_MODE_UNDEFINED);
+
             Bundle bundle = new Bundle();
             bundle.putParcelable(PARCEL_KEY,profile);
-            Toast.makeText(getContext(), profile.getName(),Toast.LENGTH_LONG).show();
+
+            ChatFragment chatFragment = new ChatFragment();
+            chatFragment.setArguments(bundle);
+
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container,chatFragment)
+                    .addToBackStack("CHAT")
+                    .commit();
         }
     }
 
