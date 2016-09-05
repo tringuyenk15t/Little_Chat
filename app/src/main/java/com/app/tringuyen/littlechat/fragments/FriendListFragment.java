@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.tringuyen.littlechat.R;
+import com.app.tringuyen.littlechat.adapters.FriendListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ public class FriendListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_friend_list, container, false);
         friedlistContainer = (RecyclerView) v.findViewById(R.id.firend_list_container);
         friendlist = new ArrayList<>();
+
+
         setFriendListItem(30);
         layoutManager = new LinearLayoutManager(getContext());
         adapter = new FriendListAdapter(friendlist);

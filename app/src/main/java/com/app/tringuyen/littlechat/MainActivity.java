@@ -14,15 +14,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.tringuyen.littlechat.fragments.ChatFragment;
+import com.app.tringuyen.littlechat.fragments.FriendListFragment;
 import com.app.tringuyen.littlechat.fragments.LoginFragment;
+import com.bumptech.glide.Glide;
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+
+import org.greenrobot.eventbus.EventBus;
 
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
-    protected TextView tvEmail;
-    protected ImageView imAvatar;
+    private TextView tvName;
+    private ImageView imAvatar;
+//    private TextView tvEmail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,9 +39,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Crab chat");
         setSupportActionBar(toolbar);
-
-        tvEmail = (TextView) findViewById(R.id.tv_email);
-        imAvatar = (ImageView) findViewById(R.id.im_avatar);
 
         initNavigationDrawer();
         initFragment();
@@ -58,6 +62,17 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
+    public void setProfile (String name, String url)
+    {
+        tvName.setText(name);
+//        tvEmail.setText(email);
+        Glide
+            .with(this)
+            .load(url)
+            .centerCrop()
+            .into(imAvatar);
+    }
+
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         return super.onCreateView(parent, name, context, attrs);
@@ -67,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
      * Put the right fragment into container when starting app
      */
     private void initFragment() {
-        LoginFragment loginFragment = new LoginFragment();
+//        enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        ChatFragment loginFragment = new ChatFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, loginFragment)
                 .addToBackStack("LOGIN")
@@ -83,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 int id = item.getItemId();
-                //TODO handle drawer navigation click
                 switch(id)
                 {
                     case R.id.friend_list:
@@ -91,15 +106,21 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.logout:
                         Toast.makeText(getApplicationContext(),"Logout list has been clicked!",Toast.LENGTH_SHORT).show();
+                        LoginManager.getInstance().logOut();
+                        //TODO back to login fragment and lock drawrelayout
                         break;
                 }
                 return false;
             }
         });
-
         View header = navigationView.getHeaderView(0);
-        TextView txtEmail = (TextView) header.findViewById(R.id.tv_email);
-        txtEmail.setText("Tringuyenk15t@gmail.com");
+        tvName = (TextView) header.findViewById(R.id.tv_name);
+//        tvEmail = (TextView) header.findViewById(R.id.tv_email);
+
+        imAvatar = (ImageView) header.findViewById(R.id.im_avatar);
+
+        tvName.setText("Tringuyenk15t@gmail.com");
+
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawer_open,R.string.drawer_close)
         {
@@ -133,10 +154,18 @@ public class MainActivity extends AppCompatActivity {
 //        EventBus.getDefault().register(this);
 //    }
 //
-//    @Override
-//    protected void onStop() {
-//        EventBus.getDefault().unregister(this);
-//        super.onStop();
-//    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        LoginManager.getInstance().logOut();
+    }
+
+    @Override
+    protected void onStop() {
+        LoginManager.getInstance().logOut();
+        super.onStop();
+    }
 
 }
