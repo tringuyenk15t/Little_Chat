@@ -29,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TextView tvName;
     private ImageView imAvatar;
-//    private TextView tvEmail;
+    ActionBarDrawerToggle actionBarDrawerToggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 //            LoginFragment loginFragment = new LoginFragment();
 //            Bundle bundle = new Bundle();
 //
-//            //TODO: push data through fragments
 //            bundle.putString("TextTrans", "Data has been transferred");
 //            loginFragment.setArguments(bundle);
 //            getSupportFragmentManager().beginTransaction()
@@ -62,15 +62,20 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
+    /**
+     * set up drawer's top_nav information
+     * @param name facebook name
+     * @param url  image url
+     */
     public void setProfile (String name, String url)
     {
         tvName.setText(name);
-//        tvEmail.setText(email);
         Glide
             .with(this)
             .load(url)
             .centerCrop()
             .into(imAvatar);
+
     }
 
     @Override
@@ -82,10 +87,24 @@ public class MainActivity extends AppCompatActivity {
      * Put the right fragment into container when starting app
      */
     private void initFragment() {
-//        enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        ChatFragment loginFragment = new ChatFragment();
+        enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        LoginFragment loginFragment = new LoginFragment();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, loginFragment)
+                .addToBackStack("LOGIN")
+                .commit();
+    }
+
+    /**
+     * Logut current account and back to login fragment
+     */
+    private void logout()
+    {
+        LoginManager.getInstance().logOut();
+        enableDisableDrawer(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        LoginFragment loginFragment = new LoginFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, loginFragment)
                 .addToBackStack("LOGIN")
                 .commit();
     }
@@ -102,12 +121,9 @@ public class MainActivity extends AppCompatActivity {
                 switch(id)
                 {
                     case R.id.friend_list:
-                        Toast.makeText(getApplicationContext(),"Friend list has been clicked!",Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.logout:
-                        Toast.makeText(getApplicationContext(),"Logout list has been clicked!",Toast.LENGTH_SHORT).show();
-                        LoginManager.getInstance().logOut();
-                        //TODO back to login fragment and lock drawrelayout
+                        logout();
                         break;
                 }
                 return false;
@@ -115,14 +131,10 @@ public class MainActivity extends AppCompatActivity {
         });
         View header = navigationView.getHeaderView(0);
         tvName = (TextView) header.findViewById(R.id.tv_name);
-//        tvEmail = (TextView) header.findViewById(R.id.tv_email);
-
         imAvatar = (ImageView) header.findViewById(R.id.im_avatar);
 
-        tvName.setText("Tringuyenk15t@gmail.com");
-
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer);
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawer_open,R.string.drawer_close)
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawer_open,R.string.drawer_close)
         {
             @Override
             public void onDrawerClosed(View v){
@@ -140,21 +152,13 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * visible or disable drawer navigation bar
-     * @param mode
+     * @param mode status of drawer toggle
      */
     public void enableDisableDrawer(int mode) {
         if (drawerLayout != null) {
             drawerLayout.setDrawerLockMode(mode);
         }
     }
-
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        EventBus.getDefault().register(this);
-//    }
-//
-
 
     @Override
     protected void onRestart() {
@@ -167,5 +171,4 @@ public class MainActivity extends AppCompatActivity {
         LoginManager.getInstance().logOut();
         super.onStop();
     }
-
 }
